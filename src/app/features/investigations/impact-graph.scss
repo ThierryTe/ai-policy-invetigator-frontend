@@ -1,0 +1,196 @@
+.graph-panel {
+  overflow: hidden;
+}
+.graph-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 18px 15px;
+}
+.legend {
+  display: flex;
+  gap: 13px;
+  color: var(--muted);
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+.legend > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.legend .policy {
+  background: #1467f6;
+}
+.legend .procedure {
+  background: #08a45a;
+}
+.legend .requirement {
+  background: #ecad00;
+}
+.legend .finding {
+  background: #ed304a;
+}
+.graph-viewport {
+  overflow: auto;
+  height: clamp(345px, 40vh, 418px);
+  background: radial-gradient(circle, #d9e3f1 0.7px, transparent 0.7px);
+  background-size: 18px 18px;
+  border-top: 1px solid #f1f5fb;
+}
+.graph-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.graph-space {
+  display: grid;
+  place-items: center;
+  min-width: 100%;
+  min-height: 100%;
+  padding: 12px;
+}
+.graph-stage {
+  position: relative;
+}
+.graph-stage.measuring {
+  opacity: 0;
+}
+.graph-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 780px;
+  transform-origin: top left;
+}
+.graph-canvas svg {
+  position: absolute;
+  inset: 0;
+}
+.graph-node {
+  position: absolute;
+  width: 218px;
+  min-height: 88px;
+  border-radius: 13px;
+  padding: 13px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: white;
+  border: 1px solid #79a4ff;
+  color: var(--ink);
+  box-shadow: 0 2px 3px #132b4b04;
+}
+.graph-node > app-icon {
+  font-size: 24px;
+  color: #0862f0;
+}
+.graph-node.policy {
+  background: #eff5ff;
+  border-color: #6e9dff;
+}
+.graph-node.procedure {
+  background: #edfbf1;
+  border-color: #61c689;
+}
+.graph-node.procedure > app-icon {
+  color: #04964d;
+}
+.graph-node.requirement {
+  background: #fffae9;
+  border-color: #edbe50;
+}
+.graph-node.requirement > app-icon {
+  color: #e7a100;
+}
+.graph-node.finding {
+  background: #fff0f2;
+  border-color: #ee8798;
+}
+.graph-node.finding > app-icon {
+  color: #df253b;
+}
+.graph-node.ambiguous {
+  background: #fff6e5;
+  border-color: #e8bd6f;
+}
+.graph-node.ambiguous > app-icon {
+  color: #ad760d;
+}
+.graph-node.selected {
+  outline: 3px solid #085bea;
+  outline-offset: 3px;
+}
+.node-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.node-content strong {
+  font-size: 11px;
+  font-weight: 650;
+}
+.node-content > span {
+  font-size: 12px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.node-content small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.graph-footer {
+  border-top: 1px solid var(--line);
+  padding: 11px 18px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--muted);
+  background: white;
+}
+.expanded {
+  position: fixed;
+  inset: 24px;
+  z-index: 80;
+  box-shadow: 0 0 0 100vmax #0d25498c;
+  display: flex;
+  flex-direction: column;
+}
+.expanded .graph-viewport {
+  max-height: none;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 600px) {
+  .legend {
+    gap: 8px;
+  }
+  .graph-tools {
+    padding: 0 14px 12px;
+  }
+  .graph-footer {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .expanded {
+    inset: 10px;
+  }
+  .panel-header .button span {
+    display: none;
+  }
+}

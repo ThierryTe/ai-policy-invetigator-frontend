@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-10-27T20:46:06.152Z",
+  "realBackend": true,
+  "reusedInvestigationId": "9a98dcd3-979b-4001-96c4-f755615a3816",
+  "noNewInference": true,
+  "checks": [
+    "shared deep link after memory-only login",
+    "prior-user query cleared on logout",
+    "viewer cannot upload or review",
+    "cross-department graph/citation denial",
+    "real offline HTTP error",
+    "online retrieval recovery"
+  ]
+}

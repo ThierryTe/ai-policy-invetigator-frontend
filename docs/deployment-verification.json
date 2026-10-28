@@ -1,0 +1,51 @@
+{
+  "recordedAt": "2026-10-27T20:46:12.725135+00:00",
+  "sameOriginApiProxyVerified": true,
+  "checks": [
+    {
+      "route": "/healthz",
+      "status": 200,
+      "noStore": true,
+      "scriptCspRestricted": true
+    },
+    {
+      "route": "/investigations/9a98dcd3-979b-4001-96c4-f755615a3816",
+      "status": 200,
+      "noStore": true,
+      "scriptCspRestricted": true
+    },
+    {
+      "route": "/api/policies",
+      "status": 401,
+      "noStore": true,
+      "scriptCspRestricted": true
+    },
+    {
+      "route": "/api/auth/me",
+      "status": 401,
+      "noStore": true,
+      "scriptCspRestricted": true
+    },
+    {
+      "route": "/v3/api-docs",
+      "status": 404,
+      "noStore": true,
+      "scriptCspRestricted": true
+    },
+    {
+      "route": "/swagger-ui/index.html",
+      "status": 404,
+      "noStore": true,
+      "scriptCspRestricted": true
+    },
+    {
+      "route": "/.env",
+      "status": 403,
+      "noStore": true,
+      "scriptCspRestricted": true
+    }
+  ],
+  "runtimeUser": "101",
+  "backendSecretsInImageEnvironment": false,
+  "frontendImageId": "sha256:ad3018b2c7559bd55dce7f1bcf18b52947bbeec0bb925a70e15717ba1e01e17b"
+}

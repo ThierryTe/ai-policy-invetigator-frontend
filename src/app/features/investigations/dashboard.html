@@ -1,0 +1,282 @@
+<div class="breadcrumb">
+  <a routerLink="/investigations">Investigations</a><app-icon name="right" /><span
+    class="truncate"
+    >{{ id() ? id()!.slice(0, 8) : 'Overview' }}</span
+  >
+</div>
+<header class="page-heading">
+  <div>
+    <h1>Policy Change Impact</h1>
+    <p>Understand policy changes and the procedures they affect</p>
+  </div>
+  <div class="page-actions">
+    @if (id()) {
+      <button class="button" type="button" (click)="copyLink()">
+        <app-icon name="link" />{{ copied() ? 'Link copied' : 'Copy link' }}
+      </button>
+    }
+    @if (auth.canUpload()) {
+      <a class="button" routerLink="/policies"><app-icon name="upload" />Upload new version</a
+      ><a class="button primary" routerLink="/investigations/new"
+        ><app-icon name="play" />Run investigation</a
+      >
+    }
+  </div>
+</header>
+@if (state().error || evidence().denied) {
+  <section class="panel empty" role="alert">
+    <app-icon name="lock" />
+    <h2>Investigation unavailable</h2>
+    <p>{{ state().error || evidence().error }}</p>
+    <button type="button" class="button" (click)="reload()">Retry authorized retrieval</button>
+  </section>
+} @else {
+  <div class="kpi-grid">
+    @for (kpi of kpis(); track kpi.title) {
+      <section class="panel kpi">
+        <span [class]="'kpi-icon ' + kpi.color"><app-icon [name]="kpi.icon" /></span>
+        <div>
+          <h2>{{ kpi.title }}</h2>
+          <strong
+            [class]="kpi.color === 'red' && kpi.value !== '—' && kpi.value !== 0 ? 'red-value' : ''"
+            >{{ kpi.value }}</strong
+          >
+          <p>{{ kpi.detail }}</p>
+        </div>
+      </section>
+    }
+  </div>
+  @if (state().busy) {
+    <section class="panel">
+      <div class="loading-bar"></div>
+      <div class="empty" role="status">Loading authorized investigation…</div>
+    </section>
+  } @else if (state().data; as data) {
+    <div class="investigation-status">
+      <div class="inline">
+        <span
+          class="badge"
+          [class.green]="data.progress.state === 'COMPLETED'"
+          [class.amber]="data.progress.state === 'PARTIAL'"
+          [class.red]="data.progress.state === 'FAILED'"
+          ><app-icon [name]="data.progress.state === 'COMPLETED' ? 'check' : 'clock'" />{{
+            label(data.progress.state)
+          }}</span
+        >
+        @if (data.progress.stage !== data.progress.state) {
+          <span>{{ label(data.progress.stage) }}</span>
+        }
+      </div>
+      <span
+        >{{ data.progress.calls }} model calls ·
+        {{ data.progress.prompt_tokens + data.progress.completion_tokens | number }} reported tokens
+        · {{ data.progress.latency_ms / 1000 | number: '1.1-1' }}s provider latency</span
+      >
+    </div>
+    @if (!['COMPLETED', 'PARTIAL', 'FAILED'].includes(data.progress.state)) {
+      <section class="panel">
+        <div class="loading-bar"></div>
+        <div class="empty" role="status">
+          <app-icon name="search" />
+          <h2>
+            {{
+              data.progress.stage === 'ASSESSING'
+                ? 'Comparing policy requirements'
+                : 'Investigation in progress'
+            }}
+          </h2>
+          <p>
+            Checking your selected policy versions and procedures. This page updates automatically;
+            you can return using this investigation link.
+          </p>
+        </div>
+      </section>
+    } @else {
+      @if (!complete()) {
+        <div class="alert warning" role="status">
+          <strong>Processing is incomplete.</strong> No complete assessment was published. This does
+          not mean no conflict.
+          @if (data.progress.error_code) {
+            <span> {{ label(data.progress.error_code) }}.</span>
+          }
+          Partial requirements and graph checkpoints may be available.
+        </div>
+      }
+      <div class="dashboard-columns">
+        <div class="dashboard-left">
+          @if (data.graph) {
+            <app-impact-graph
+              [graph]="data.graph"
+              [selected]="selected()?.id || null"
+              (chosen)="chooseNode($event)"
+            />
+          }
+          <div class="sources-grid">
+            <section class="panel">
+              <header class="panel-header">
+                <div>
+                  <h2>Related documents</h2>
+                  <p>Source versions cited in this finding</p>
+                </div>
+              </header>
+              <div class="related-documents">
+                @for (doc of documents(); track doc.version_id) {
+                  <div class="document-row">
+                    <span
+                      class="document-icon"
+                      [class.green]="doc.version_id === selected()?.procedureVersionId"
+                      ><app-icon name="document"
+                    /></span>
+                    <div>
+                      <h3>{{ documentTitle(doc.version_id) }}</h3>
+                      <p>Version {{ doc.version_id.slice(0, 8) }} · Page {{ doc.page_number }}</p>
+                    </div>
+                    <button type="button" class="button small" (click)="openPdf(doc)">
+                      <app-icon name="eye" />View PDF
+                    </button>
+                  </div>
+                } @empty {
+                  <p class="empty caption">
+                    {{
+                      evidence().busy
+                        ? 'Resolving source documents…'
+                        : 'Select a finding to see its source documents.'
+                    }}
+                  </p>
+                }
+              </div>
+            </section>
+            <section class="panel">
+              <header class="panel-header">
+                <div>
+                  <h2>Evidence excerpts</h2>
+                  <p>Exact text from verified source documents</p>
+                </div>
+                <span class="caption muted">{{ evidence().items.length }} citations</span>
+              </header>
+              <div class="evidence-list">
+                @if (evidence().error) {
+                  <p class="alert danger" role="alert">{{ evidence().error }}</p>
+                }
+                @for (item of evidence().items; track $index) {
+                  <article
+                    class="excerpt"
+                    [class.procedure]="item.evidence.version_id === selected()?.procedureVersionId"
+                  >
+                    <div class="excerpt-heading">
+                      <strong
+                        >{{ documentTitle(item.evidence.version_id) }} · Page
+                        {{ item.evidence.page_number }}</strong
+                      ><button
+                        type="button"
+                        class="source-link"
+                        (click)="openPdf(item.evidence)"
+                        aria-label="View cited PDF page"
+                      >
+                        View <app-icon name="eye" />
+                      </button>
+                    </div>
+                    <blockquote>“{{ item.reference.quote }}”</blockquote>
+                  </article>
+                } @empty {
+                  <p class="empty caption">
+                    {{
+                      evidence().busy ? 'Verifying current source access…' : 'No citation selected.'
+                    }}
+                  </p>
+                }
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="dashboard-right">
+          <div class="finding-filter">
+            <label for="finding-filter">Findings</label
+            ><select
+              id="finding-filter"
+              [value]="filter()"
+              (change)="filter.set($any($event.target).value)"
+            >
+              @for (value of classifications; track value) {
+                <option [value]="value">
+                  {{ value === 'ALL' ? 'All classifications' : label(value) }}
+                </option>
+              }
+            </select>
+          </div>
+          @if (selected(); as finding) {
+            @for (f of [finding]; track f.id) {
+              <app-finding-panel
+                [investigationId]="id()!"
+                [finding]="f"
+                [review]="review()"
+                [canReview]="data.findings?.canReview || false"
+                [title]="title()"
+                [index]="index()"
+                [total]="findings().length"
+                (step)="selectStep($event)"
+                (saved)="reload()"
+                (permissionChanged)="reload()"
+                (source)="openSource($event)"
+              />
+            }
+          } @else {
+            <section class="panel empty">
+              <app-icon name="info" />
+              <h2>
+                {{ complete() ? 'No findings in this view' : 'No complete findings published' }}
+              </h2>
+              <p>
+                {{
+                  complete()
+                    ? 'Choose a different classification to view other findings.'
+                    : 'Review the processing status. Incomplete evidence is never treated as no conflict.'
+                }}
+              </p>
+            </section>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <app-recent-investigations>
+      <section class="panel empty overview-empty">
+        <span class="empty-illustration"><app-icon name="graph" /></span>
+        <h2>Your next policy change, clearly mapped.</h2>
+        <p>
+          Upload your policy versions and procedures, then run an investigation to trace potential
+          contradictions back to their sources. Open earlier investigations using a saved link or
+          ID.
+        </p>
+        <div class="page-actions">
+          @if (auth.canUpload()) {
+            <a class="button primary" routerLink="/policies"
+              ><app-icon name="upload" />Upload a document</a
+            ><a class="button" routerLink="/investigations/new">Start investigation</a>
+          } @else {
+            <a class="button" routerLink="/investigations">Open an investigation</a>
+          }
+        </div>
+        <p class="caption muted">
+          Recent investigations created in this session appear here. This view does not provide
+          earlier session history.
+        </p>
+        <a class="button" routerLink="/investigations">Open an existing investigation</a>
+        <div class="workflow-hints">
+          <span><app-icon name="document" />Versioned policies</span
+          ><span><app-icon name="link" />Verified sources</span
+          ><span><app-icon name="check" />Human decisions</span>
+        </div>
+      </section>
+    </app-recent-investigations>
+  }
+}
+@if (pdf(); as doc) {
+  <app-pdf-viewer
+    [policy]="doc.policy"
+    [version]="doc.version"
+    [title]="doc.title"
+    [page]="doc.page"
+    (closed)="pdf.set(null)"
+  />
+}

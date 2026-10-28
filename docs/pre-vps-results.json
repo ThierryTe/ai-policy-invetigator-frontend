@@ -1,0 +1,65 @@
+{
+  "recordedAt": "2026-10-28T08:58:39.317269+00:00",
+  "scope": "Focused pre-VPS frontend improvements only",
+  "implementationLocation": "/private/tmp/policy-investigator-focused-frontend",
+  "targetRepository": "/Users/tewendekima/Desktop/project-tewendelabs/ai-policy-investigator-frontend",
+  "applicationStatus": "Verified in staging; permanent repository write blocked by session filesystem policy",
+  "overview": {
+    "backendListApiExists": false,
+    "newBackendEndpointAdded": false,
+    "behavior": "Known current-session IDs rechecked via existing GET /api/investigations/{id}; inaccessible scopes omitted; historical discovery unavailable",
+    "scopeLimitation": "Cannot assert the database is empty when no session IDs are known; invitation offers existing-ID navigation instead"
+  },
+  "graph": {
+    "initialFullScopeFit": true,
+    "layoutCoordinatesPreserved": true,
+    "resizesAutomatically": true,
+    "focusedAndExpandedFit": true,
+    "original100PercentScrollViewPreserved": true,
+    "browserNodeBoundsVerifiedDesktopAndMobile": true
+  },
+  "tests": {
+    "command": "npm test && npm run build",
+    "focusedTests": 29,
+    "failures": 0,
+    "productionBuild": "PASS",
+    "realBrowserWorkflow": "PASS",
+    "browserRunSeconds": 60.0,
+    "newInferenceRuns": 1,
+    "mockProviderUsed": false
+  },
+  "demo": {
+    "guide": "docs/REAL_DEMO.md",
+    "evidence": "docs/focused-demo-verification.json",
+    "fixtureSource": "Existing backend evaluation/phase3-golden.json",
+    "model": "muse-spark-1.3",
+    "investigationId": "5781755d-83fb-49a0-a748-fe7f422d9ff2",
+    "classifications": [
+      "CONTRADICTION",
+      "NO_CONFLICT"
+    ],
+    "usage": {
+      "id": "5781755d-83fb-49a0-a748-fe7f422d9ff2",
+      "state": "COMPLETED",
+      "stage": "COMPLETED",
+      "error_code": null,
+      "attempts": 1,
+      "calls": 5,
+      "metered_calls": 5,
+      "prompt_tokens": 6589,
+      "completion_tokens": 9417,
+      "latency_ms": 40605
+    },
+    "verifiedCitationInstances": 8
+  },
+  "unchanged": [
+    "Backend public source/configuration/API",
+    "Frontend auth and JWT handling",
+    "Provider/model configuration",
+    "Dependencies and lockfile",
+    "Docker and infrastructure configuration",
+    "Approved palette, panel layout and graph node coordinates"
+  ],
+  "gitCommandsRun": false,
+  "vpsDeployed": false
+}

@@ -1,0 +1,103 @@
+{
+  "recordedAt": "2026-10-28T08:55:08.987Z",
+  "realBackend": true,
+  "realModel": "muse-spark-1.3",
+  "progress": {
+    "id": "5781755d-83fb-49a0-a748-fe7f422d9ff2",
+    "state": "COMPLETED",
+    "stage": "COMPLETED",
+    "error_code": null,
+    "attempts": 1,
+    "calls": 5,
+    "metered_calls": 5,
+    "prompt_tokens": 6589,
+    "completion_tokens": 9417,
+    "latency_ms": 40605
+  },
+  "classifications": [
+    "CONTRADICTION",
+    "NO_CONFLICT"
+  ],
+  "syntheticOnly": true,
+  "verifiedCitations": [
+    {
+      "sourceId": "8f82cd2d-a1a4-4718-8bef-9a6f9958cf9a",
+      "versionId": "1bb38889-36c5-46ab-9c55-7fc420eb2a01",
+      "page": 1,
+      "quoteMatches": true
+    },
+    {
+      "sourceId": "8f82cd2d-a1a4-4718-8bef-9a6f9958cf9a",
+      "versionId": "1bb38889-36c5-46ab-9c55-7fc420eb2a01",
+      "page": 1,
+      "quoteMatches": true
+    },
+    {
+      "sourceId": "9224778c-8efb-40aa-b1b3-54f6429fc2a5",
+      "versionId": "75c22925-9a0e-4607-8ae6-6fa7ae1142d5",
+      "page": 1,
+      "quoteMatches": true
+    },
+    {
+      "sourceId": "9224778c-8efb-40aa-b1b3-54f6429fc2a5",
+      "versionId": "75c22925-9a0e-4607-8ae6-6fa7ae1142d5",
+      "page": 1,
+      "quoteMatches": true
+    },
+    {
+      "sourceId": "8f82cd2d-a1a4-4718-8bef-9a6f9958cf9a",
+      "versionId": "1bb38889-36c5-46ab-9c55-7fc420eb2a01",
+      "page": 1,
+      "quoteMatches": true
+    },
+    {
+      "sourceId": "8f82cd2d-a1a4-4718-8bef-9a6f9958cf9a",
+      "versionId": "1bb38889-36c5-46ab-9c55-7fc420eb2a01",
+      "page": 1,
+      "quoteMatches": true
+    },
+    {
+      "sourceId": "829ea3b0-829e-4fa4-a0d0-96385decb51b",
+      "versionId": "62ca1c71-14e8-4467-b1d0-00bb22eaebee",
+      "page": 1,
+      "quoteMatches": true
+    },
+    {
+      "sourceId": "829ea3b0-829e-4fa4-a0d0-96385decb51b",
+      "versionId": "62ca1c71-14e8-4467-b1d0-00bb22eaebee",
+      "page": 1,
+      "quoteMatches": true
+    }
+  ],
+  "graphFitVerified": {
+    "desktop": true,
+    "mobile": true,
+    "fullAndFocused": true,
+    "expanded": true,
+    "originalScaleRestorable": true
+  },
+  "overview": "Current-session ID shown after current authorization recheck; no list endpoint exists",
+  "investigationId": "5781755d-83fb-49a0-a748-fe7f422d9ff2",
+  "checks": [
+    "initial fit for every rendered graph node, resize, focus, expand and 100% controls",
+    "authorized current-session Overview",
+    "every published citation matched persisted source text",
+    "browser login",
+    "four PDF uploads",
+    "immutable version history",
+    "consent",
+    "durable investigation polling",
+    "contradiction and non-conflict",
+    "verified citation retrieval",
+    "graph navigation",
+    "authenticated PDF blob viewer",
+    "confirm/dismiss/note history",
+    "desktop/mobile layouts",
+    "no browser token storage",
+    "logout content clearing",
+    "reload requires login",
+    "viewer review controls hidden",
+    "cross-department resource denial"
+  ],
+  "consoleErrors": []
+}

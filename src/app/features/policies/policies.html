@@ -1,0 +1,347 @@
+<div class="breadcrumb">Workspace<app-icon name="right" /><span>Policies</span></div>
+<header class="page-heading">
+  <div>
+    <h1>Policies & procedures</h1>
+    <p>Immutable document versions, ready for investigation</p>
+  </div>
+  @if (auth.canUpload()) {
+    <div class="page-actions">
+      <button type="button" class="button" (click)="open('PROCEDURE')">
+        <app-icon name="upload" />Upload procedure</button
+      ><button type="button" class="button primary" (click)="open('POLICY')">
+        <app-icon name="plus" />Upload policy
+      </button>
+    </div>
+  }
+</header>
+@if (uploadState().done) {
+  <div class="alert" role="status">
+    Document indexed successfully. Its immutable version is ready for investigation.
+  </div>
+}
+@if (uploadState().error && !mode()) {
+  <div class="alert danger" role="alert">{{ uploadState().error }}</div>
+}
+<div class="content-grid">
+  <section class="panel">
+    <header class="panel-header">
+      <div>
+        <h2>Document library</h2>
+        <p>Showing your currently authorized documents</p>
+      </div>
+      <button
+        type="button"
+        class="icon-button"
+        aria-label="Refresh policies"
+        (click)="refresh.update(increment)"
+      >
+        <app-icon name="refresh" />
+      </button>
+    </header>
+    @if (listing().busy) {
+      <div class="loading-bar"></div>
+    }
+    @if (listing().error) {
+      <div class="alert danger" role="alert">{{ listing().error }}</div>
+    }
+    @if (query()) {
+      <p class="panel-body caption muted">Title filter on this page: “{{ query() }}”</p>
+    }
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Type</th>
+            <th>External processing</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (policy of visible(); track policy.id) {
+            <tr>
+              <td>
+                <button type="button" class="link-button" (click)="selected.set(policy)">
+                  {{ policy.title }}</button
+                ><br /><small>{{ policy.id.slice(0, 8) }}</small>
+              </td>
+              <td>
+                <span class="badge" [class.green]="policy.kind === 'PROCEDURE'">{{
+                  label(policy.kind)
+                }}</span>
+              </td>
+              <td>
+                <span class="badge" [class.green]="policy.externalProcessingAllowed">{{
+                  policy.externalProcessingAllowed ? 'Allowed' : 'Not allowed'
+                }}</span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="3">
+                <div class="empty">
+                  {{
+                    listing().busy ? 'Loading documents…' : 'No matching documents on this page.'
+                  }}
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <footer class="pager">
+      <button
+        type="button"
+        class="button small"
+        [disabled]="page() === 0 || listing().busy"
+        (click)="page.set(page() - 1)"
+      >
+        Previous</button
+      ><span>Page {{ page() + 1 }} · Up to 25 documents</span
+      ><button
+        type="button"
+        class="button small"
+        [disabled]="listing().items.length < 25 || listing().busy"
+        (click)="page.set(page() + 1)"
+      >
+        Next
+      </button>
+    </footer>
+  </section>
+  <section class="panel">
+    @if (selected(); as policy) {
+      <header class="panel-header">
+        <div>
+          <h2>{{ policy.title }}</h2>
+          <p>{{ label(policy.kind) }} · Version history</p>
+        </div>
+        @if (canWriteSelected()) {
+          <button
+            type="button"
+            class="button small primary"
+            [disabled]="history().busy || !history().items.length"
+            (click)="open('VERSION')"
+          >
+            <app-icon name="upload" />New version
+          </button>
+        }
+      </header>
+      <div class="panel-body">
+        <div class="required-note">
+          <strong
+            >External processing:
+            {{ policy.externalProcessingAllowed ? 'allowed' : 'not allowed' }}</strong
+          >
+          <p style="margin: 5px 0 0">
+            Allowing processing permits authorized source content to be sent to Meta for
+            investigation. Every selected document needs owning-department administrator consent.
+          </p>
+          @if (canConsent()) {
+            <button
+              type="button"
+              class="button small"
+              style="margin-top: 12px"
+              [disabled]="consentState().busy"
+              (click)="consent(!policy.externalProcessingAllowed)"
+            >
+              {{
+                policy.externalProcessingAllowed
+                  ? 'Revoke external processing'
+                  : 'Allow external processing'
+              }}
+            </button>
+          }
+        </div>
+        @if (consentState().error) {
+          <p class="alert danger" role="alert">{{ consentState().error }}</p>
+        }
+      </div>
+      @if (history().busy) {
+        <div class="loading-bar"></div>
+      }
+      @if (history().error) {
+        <p class="alert danger" role="alert">{{ history().error }}</p>
+      }
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Version / effective date</th>
+              <th>Ingestion</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of history().items; track v.id) {
+              <tr>
+                <td>
+                  <strong>Version {{ v.sequence }}</strong
+                  ><br /><small
+                    >{{ v.effective_date | date: 'mediumDate' }} · {{ v.filename }}</small
+                  ><br /><small>{{ v.id.slice(0, 8) }}</small>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.green]="v.job_status === 'COMPLETED'"
+                    [class.red]="v.job_status === 'FAILED'"
+                    >{{ label(v.job_status || v.status) }}</span
+                  ><br /><small>{{ label(v.stage || v.status) }}</small>
+                  @if (v.error_code) {
+                    <br /><small>{{ label(v.error_code) }}</small>
+                  }
+                </td>
+                <td>
+                  <button type="button" class="button small" (click)="pdf.set(v)">
+                    <app-icon name="eye" />View PDF
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-body">
+        <p class="caption muted" style="margin: 0">
+          Original bytes and prior versions are preserved. Refresh to resume viewing durable
+          ingestion status.
+        </p>
+      </div>
+    } @else {
+      <div class="empty">
+        <app-icon name="document" />
+        <h2>Select a document</h2>
+        <p>Inspect versions, open the original PDF, or manage external-processing consent.</p>
+      </div>
+    }
+  </section>
+</div>
+@if (mode(); as uploadMode) {
+  <div class="overlay">
+    <form
+      class="dialog"
+      appModal
+      role="dialog"
+      aria-modal="true"
+      aria-label="Upload document"
+      (ngSubmit)="submit()"
+    >
+      <header class="dialog-header">
+        <div>
+          <h2>
+            {{
+              uploadMode === 'VERSION'
+                ? 'Upload new version'
+                : uploadMode === 'PROCEDURE'
+                  ? 'Upload procedure'
+                  : 'Upload policy'
+            }}
+          </h2>
+          <p class="caption muted">PDF only · Up to 10 MB · Immutable source</p>
+        </div>
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Close upload"
+          [disabled]="uploadState().busy"
+          (click)="mode.set(null)"
+        >
+          <app-icon name="x" />
+        </button>
+      </header>
+      <div class="dialog-body">
+        @if (uploadMode !== 'VERSION') {
+          <div class="field">
+            <label for="doc-title">Document title</label
+            ><input
+              id="doc-title"
+              name="title"
+              maxlength="200"
+              required
+              [ngModel]="title()"
+              (ngModelChange)="title.set($event)"
+            />
+          </div>
+          <div class="field">
+            <label for="department">Owning department</label
+            ><select
+              id="department"
+              name="department"
+              required
+              [ngModel]="department()"
+              (ngModelChange)="department.set($event)"
+            >
+              @for (dept of departments(); track dept.department_id) {
+                <option [value]="dept.department_id">{{ dept.department_name }}</option>
+              }
+            </select>
+          </div>
+        } @else {
+          <p class="required-note">
+            A new immutable version of <strong>{{ selected()?.title }}</strong> will directly follow
+            version {{ history().items.at(-1)?.sequence }}.
+          </p>
+        }
+        <div class="field">
+          <label for="effective-date">Effective date</label
+          ><input
+            id="effective-date"
+            name="effectiveDate"
+            type="date"
+            required
+            [ngModel]="date()"
+            (ngModelChange)="date.set($event)"
+          />
+        </div>
+        <div class="field">
+          <label for="pdf-file">PDF document</label
+          ><input
+            id="pdf-file"
+            name="pdf"
+            type="file"
+            accept="application/pdf,.pdf"
+            (change)="chooseFile($event)"
+          />
+          @if (fileError()) {
+            <p class="alert danger" role="alert">{{ fileError() }}</p>
+          }
+        </div>
+        @if (uploadState().busy) {
+          <div class="loading-bar"></div>
+          <p role="status" class="caption muted">
+            {{ uploadState().stage }}. Keep this dialog open until ingestion completes.
+          </p>
+        }
+        @if (uploadState().error) {
+          <p class="alert danger" role="alert">{{ uploadState().error }}</p>
+        }
+        <div class="dialog-footer">
+          <button
+            type="button"
+            class="button"
+            [disabled]="uploadState().busy"
+            (click)="mode.set(null)"
+          >
+            Cancel</button
+          ><button
+            type="submit"
+            class="button primary"
+            [disabled]="
+              !file() || uploadState().busy || (uploadMode !== 'VERSION' && !title().trim())
+            "
+          >
+            {{ uploadState().busy ? 'Processing…' : 'Upload and index' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+}
+@if (pdf(); as v) {
+  <app-pdf-viewer
+    [policy]="v.policy_id"
+    [version]="v.id"
+    [title]="selected()?.title || 'Source PDF'"
+    (closed)="pdf.set(null)"
+  />
+}

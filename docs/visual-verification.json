@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-10-27T20:46:09.303Z",
+  "baseUrl": "http://127.0.0.1:18081",
+  "desktop": {
+    "width": 1536,
+    "height": 1024
+  },
+  "mobile": {
+    "width": 390,
+    "height": 844,
+    "horizontalOverflow": false
+  },
+  "globalStylesApplied": true,
+  "pdfBlobViewer": true,
+  "cspViolations": [],
+  "pageErrors": [],
+  "screenshots": [
+    "screenshots/desktop-real-investigation.png",
+    "screenshots/mobile-real-investigation.png",
+    "screenshots/pdf-real-source.png"
+  ]
+}
