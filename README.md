@@ -1,19 +1,40 @@
 # AI Policy Investigator — Angular frontend
 
-Independent frontend workspace intended for
-[ThierryTe/ai-policy-investigator-frontend](https://github.com/ThierryTe/ai-policy-investigator-frontend).
-The owner creates the GitHub repository and performs all Git operations. No Git
-repository or history was initialized by this implementation.
+Built for the Meta Global AI Developer Hackathon 2026.
 
-Phase 5 hackathon MVP: the approved navy/light policy-impact dashboard connected to
-the real Spring Boot APIs. No mock findings, fabricated KPIs or client-side LLM calls.
-Backend: [ThierryTe/ai-policy-invetigator](https://github.com/ThierryTe/ai-policy-invetigator).
+An analyst uploads a policy change, compares it with selected procedures and reviews
+potential conflicts with exact source evidence. This Angular dashboard connects to
+the Java backend and Meta Muse (`muse-spark-1.3`) through authenticated backend APIs.
+There are no client-side model calls or fabricated findings/KPIs.
+
+- Frontend: [ThierryTe/ai-policy-invetigator-frontend](https://github.com/ThierryTe/ai-policy-invetigator-frontend).
+- Backend: [ThierryTe/ai-policy-invetigator](https://github.com/ThierryTe/ai-policy-invetigator).
+
+## Real demonstration and screenshots
+
+The [repeatable Muse demo](docs/REAL_DEMO.md) contrasts training **before sensitive-system
+access** with **day-one access and training within 30 days**, plus a compatible control
+that withholds access until training. It uses synthetic PDFs, explicit processing
+consent, real inference, persisted citations and human review.
+
+![Recorded local investigation with impact graph and human review](docs/screenshots/desktop-fitted-investigation.png)
+
+Existing [mobile](docs/screenshots/mobile-fitted-investigation.png) and
+[original PDF](docs/screenshots/pdf-real-source.png) captures show genuine local results.
+Analysts confirm, dismiss or annotate a finding while preserving its original AI
+classification, evidence and review history. These are local demonstration screenshots,
+not proof of a running public site.
+
+The [October 28 browser run](docs/focused-demo-verification.json) found CONTRADICTION
+and NO_CONFLICT and verified all eight published finding citation instances. It reported
+five calls, 6,589 prompt / 9,417 completion tokens and 40,605 ms summed metered provider
+latency. This is a workflow demonstration, separate from the backend evaluation.
 
 ## Run locally
 
-Use Node 22.14+ on the supported Node 22 line and npm 11.8.0 (the declared package
-manager). Angular 21 supports Node 22.12+; see the official
-[compatibility matrix](https://v21.angular.dev/reference/versions).
+Use Node 22 and npm 11.8.0, matching the CI and the declared package manager.
+See Angular's [compatibility matrix](https://v21.angular.dev/reference/versions)
+for supported Node releases.
 
 ```sh
 npm ci
@@ -21,8 +42,9 @@ npm start
 ```
 
 Open `http://127.0.0.1:4200`. The Angular development proxy sends `/api/**` to the
-existing backend on `http://127.0.0.1:18080`; start the backend with its documented
-Compose command first. No CORS change, frontend secret or Meta key is required.
+backend on `http://127.0.0.1:18080`; first follow the backend's
+[local setup](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/docs/SETUP.md)
+and [demo provisioning](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/docs/DEMO.md). No CORS change, frontend secret or Meta key is required.
 Use an account provisioned through the backend's existing operator process. There
 is no sign-up or password-reset endpoint, and no default credential is supplied.
 
@@ -58,9 +80,9 @@ filters policy titles on the current paginated library page. The investigation
 selector supports document pagination and keeps selected procedures across pages.
 No unsupported endpoint was invented.
 
-## Focused Overview, graph fit and real demo
+## Overview and impact graph
 
-Overview now rechecks known current-session investigation IDs through the existing
+Overview rechecks known current-session investigation IDs through the existing
 individual progress API before displaying their status/link. Unreadable scopes are
 omitted and retrieval errors are not shown as empty history. The backend has no
 investigation-list API, so earlier session history cannot be discovered automatically;
@@ -71,9 +93,6 @@ recalculates on resize, focus changes and expansion. **100%** restores the exist
 scrollable layout for reading; **Fit to view** restores the complete overview.
 Node coordinates, relationships, source navigation and selection are preserved.
 
-Follow the [repeatable real Muse demo](docs/REAL_DEMO.md) for the actual training-before-
-access versus day-one-access scenario and its non-conflicting control. This uses
-existing synthetic PDFs, explicit consent, real inference and persisted citations.
 
 ## Architecture and security
 
@@ -85,8 +104,8 @@ cleanup. There is no NgRx, Angular Material dashboard or manual component subscr
 
 Features are grouped under `src/app/features/`; `core/contracts.ts` preserves the
 actual camel-case DTOs and documented snake-case SQL projections. The backend's
-`docs/api/phase4.md` and controllers are authoritative; [the frontend API map](docs/API.md)
-records the exact routes used.
+[dashboard API contract](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/docs/api/phase4.md)
+and controllers are authoritative; [the frontend API map](docs/API.md) records the exact routes used.
 
 - Bearer tokens attach only to relative `/api/` requests, never third-party URLs.
   No localStorage/sessionStorage, cookies or service-worker content cache is used.
@@ -106,7 +125,7 @@ records the exact routes used.
 ## Build and focused tests
 
 ```sh
-npm run build
+npm run build -- --configuration production
 npm test
 ```
 
@@ -119,19 +138,23 @@ No dependency override or unsupported Angular version was forced.
 
 ## Real browser verification (explicit opt-in)
 
-The workflow test uploads four synthetic PDFs and makes real, billable Meta calls
-through the existing backend authorization/consent gates. It does not intercept API
-requests or return fixture model outputs. Run only against the dedicated local
-backend database, never a shared VPS database.
+The workflow test uploads four synthetic PDFs and makes real Meta calls through the
+backend authorization/consent gates. It does not intercept API requests or return fixture
+model outputs. Use a dedicated local database; calls can incur provider usage. First
+prepare the backend's ignored `.local/runtime.env` for the SQL fixture helper, keeping
+its values consistent with the local database as described in
+[evaluation setup](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/docs/EVALUATION.md#reproduce-safely).
+Keep a local frontend server running at the selected E2E URL. The example uses the
+[local Docker frontend](#local-docker-compose) on port 18081.
 
 ```sh
-python3 scripts/prepare_browser_fixture.py --backend /path/to/ai-policy-investigator-backend
+python3 scripts/prepare_browser_fixture.py --backend ../aI-policy-investigator-backend
 npx playwright install chromium
 E2E_DATA_DIR="$PWD/.e2e-data" E2E_BASE_URL=http://127.0.0.1:18081 \
   npx playwright test e2e/workflow.spec.ts
 E2E_DATA_DIR="$PWD/.e2e-data" E2E_BASE_URL=http://127.0.0.1:18081 \
   npx playwright test e2e/visual.spec.ts
-python3 scripts/prepare_browser_fixture.py --backend /path/to/ai-policy-investigator-backend --cleanup
+python3 scripts/prepare_browser_fixture.py --backend ../aI-policy-investigator-backend --cleanup
 ```
 
 Provisioning creates isolated synthetic users through the backend's existing local
@@ -144,57 +167,89 @@ cleanup option disables fixture accounts and retains immutable evidence.
 Browser traces/video and automatic failure screenshots are disabled to avoid
 recording credential entry or tokens. Deliberate committed screenshots contain only
 synthetic documents, generated reviewer identities and actual model results.
-See [verification](docs/VERIFICATION.md), [browser evidence](docs/browser-verification.json)
-and [desktop screenshot](docs/screenshots/desktop-real-investigation.png).
+The [real-demo guide](docs/REAL_DEMO.md) and [recorded browser evidence](docs/browser-verification.json)
+describe dated local runs; they do not establish current production health. The visual
+test reads `docs/browser-verification.json`, so the commands above leave the workflow
+test's default report path unchanged. Tests deliberately update reports/screenshots;
+review those artifacts before publishing them.
 
-## VPS + Docker Compose
+## Local Docker Compose
 
-Start the existing backend Compose deployment first, including its PostgreSQL 16
-and pinned embedding volume bootstrap. Then, from this separate frontend checkout:
+Start the backend's local Compose deployment first, including `postgres`, `model-init`
+and `backend`. Then, from this frontend checkout:
 
 ```sh
 docker compose up --build -d --wait
 ```
 
-Open `http://127.0.0.1:18081` locally. The frontend joins the existing external Docker
-network `ai-policy-investigator_default` and resolves the backend service as
-`backend:8080`. The backend Compose files are unchanged. For a different network or
-backend alias, use process variables (no credentials):
+Open `http://127.0.0.1:18081`. The local `frontend` service publishes
+`127.0.0.1:18081:8080`, joins external network `ai-policy-investigator_default` and
+routes `/api/` to `backend:8080`. Its healthcheck probes `/healthz`; backend readiness
+must be checked separately through the API. For a custom local network, set
+`BACKEND_NETWORK` and `BACKEND_UPSTREAM` to the actual backend network/address.
+These are server-side routing values, not credentials or browser-controlled URLs.
 
-```sh
-BACKEND_NETWORK=your-existing-network BACKEND_UPSTREAM=http://backend:8080 \
-  docker compose up --build -d --wait
+The Dockerfile uses pinned Node/Nginx image digests, npm 11.8.0 and the lockfile.
+No frontend settings or secrets need to be embedded from `.env`.
+
+## Automatic production CI/CD
+
+[Frontend CI](.github/workflows/verify.yml) validates pushes to develop/main and pull
+requests targeting main. On a main push in `ThierryTe/ai-policy-invetigator-frontend`,
+successful validation is configured to call the backend's shared publication and
+deployment workflows with `component: frontend`. The chain is **verify → publish → deploy**,
+using GitHub Environment **prod** in the calling repository. Normal validation runs
+do not call Meta or need production secrets.
+
+The existing image packages are:
+
+```text
+ghcr.io/thierryte/ai-policy-invetigator
+ghcr.io/thierryte/ai-policy-invetigator-model-init
+ghcr.io/thierryte/ai-policy-invetigator-frontend
 ```
 
-Keep the VPS's existing HTTPS reverse proxy. Point the chosen frontend hostname's
-upstream to `127.0.0.1:18081`, or to this frontend's port 8080 if the reverse proxy
-shares its Docker network. Send the whole origin through this frontend; its `/api/`
-location preserves backend request paths and bearer headers. Do not expose port
-18080 or PostgreSQL publicly, install another TLS proxy, or put secrets into build
-arguments. Forwarded request bodies must permit the existing 11 MB multipart limit.
-Actual public-host DNS/TLS deployment is owner-managed and was not performed here.
+Production uses the backend-owned
+[frontend production overlay](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/deploy/frontend/compose.production.yaml)
+and [image overlay](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/deploy/frontend/compose.ghcr.yaml).
+They remove the local host port/build, use verified local images without pulls, and
+connect the frontend to `ai-policy-investigator_application` and
+`nginx-proxy-manager_default`. Nginx Proxy Manager targets `ai-policy-investigator-web:8080`;
+the API upstream is `backend.ai-policy-investigator_application:8080`. Backend and
+PostgreSQL are private, with no production host ports. The local Compose command above
+does not install this production topology.
 
-The Dockerfile uses observed pinned Node/Nginx image digests, npm 11.8.0 and the lock
-file. No frontend settings need to be embedded from `.env`. `BACKEND_UPSTREAM` is
-server-side routing configuration, never a browser-provided URL. Compose health
-checks only the frontend's `/healthz`; backend availability is verified separately
-through actual API requests.
+The workflow passes the existing host, user, private-key, port and project-path SSH
+inputs to backend tooling. The public `prod` environment variable `VPS_HOST_KEY`
+pins the server's Ed25519 public host key; the transfer helper constructs `known_hosts`
+locally and retains `StrictHostKeyChecking=yes`. No additional GitHub secret is needed.
+See the backend's
+[current SSH configuration](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/docs/PRODUCTION_PIPELINE.md#current-ssh-configuration)
+and [operations guide](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/docs/DEPLOYMENT.md).
+No successful VPS deployment, public DNS/TLS configuration or public-site availability
+is established by the local screenshots or tests.
 
-## Visual differences and scope
+## Evaluation and MVP limits
 
-The attached mockup is the visual baseline: navy sidebar, light workspace, four
-cards, color-coded graph, finding panel, related documents, evidence and review
-controls. Differences are intentional or based on actual data:
+The backend's ten-case real-Muse evaluation matched **6/10**, with **four processing
+errors**. A separate four-case exception retry matched **3/4**, including **one false
+positive** against the unchanged expected label. Across those two runs: 31 calls,
+38,359 prompt / 68,141 completion tokens, 296,572 ms summed metered provider latency
+and 119/119 verified source/quote instances. The retry does not replace the original
+errors or establish single-run 90% accuracy. See
+[evaluation and original reports](https://github.com/ThierryTe/ai-policy-invetigator/blob/main/docs/EVALUATION.md).
 
-- Rules Analyzed counts actual replacement requirements, not invented policy totals.
-- Header actions upload/run/copy link; report export and notifications have no API.
-- Real UUIDs, account email, actual findings, unknown fields and citation counts
-  replace mockup labels, names and dates. No invented start/end timestamps appear.
-- Real graphs may contain more nodes/links and initially fit the viewport, with a 100% scrollable view;
-  mobile stacks the panels and keeps graph scrolling inside its own viewport.
-- Source excerpts can occupy more space than the mockup; every returned citation
-  remains accessible. Coverage indicates source correspondence, not AI accuracy.
+Citation matching establishes source correspondence, not correct interpretation.
+Evidence coverage in the UI measures citation coverage, not AI accuracy. Incomplete
+results remain partial; errors never count as NO_CONFLICT. Human validation is required
+for actionable findings.
 
-[Provenance](docs/PROVENANCE.md) distinguishes CLI scaffolding, new implementation,
-backend contract references and synthetic verification. The original AI Compliance
-Copilot repositories were not modified or copied into this frontend.
+The MVP compares 1–4 explicitly selected procedure versions; enterprise-wide automatic
+scope discovery, report export, notifications and a server investigation-history list
+are outside scope. The current-session Overview cannot discover earlier sessions.
+Policy search filters the current paginated library page. Rules Analyzed counts actual
+replacement requirements; no unsupported totals or endpoints are invented.
+
+[Provenance](docs/PROVENANCE.md) distinguishes scaffolding, new implementation,
+backend contract references and synthetic verification. Reused work retains its
+attribution; the original AI Compliance Copilot repositories were not modified.

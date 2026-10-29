@@ -1,14 +1,14 @@
 name: Frontend CI
 on:
   push:
-    branches: [develop]
+    branches: [develop, main]
   pull_request:
     branches: [main]
 permissions:
   contents: read
 concurrency:
   group: frontend-ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   verify:
     runs-on: ubuntu-24.04
@@ -31,3 +31,29 @@ jobs:
           npm run build -- --configuration production
       - name: Build production frontend image without backend credentials
         run: docker build --tag policy-investigator-frontend:ci .
+
+  publish:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'ThierryTe/ai-policy-invetigator-frontend'
+    permissions:
+      contents: read
+      packages: write
+    uses: ThierryTe/ai-policy-invetigator/.github/workflows/publish-images.yml@main
+    with:
+      component: frontend
+
+  deploy:
+    needs: publish
+    permissions:
+      contents: read
+      packages: read
+    uses: ThierryTe/ai-policy-invetigator/.github/workflows/deploy-production.yml@main
+    with:
+      component: frontend
+      source_sha: ${{ github.sha }}
+    secrets:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_PORT: ${{ secrets.VPS_PORT }}
+      VPS_DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
