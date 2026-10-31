@@ -6,58 +6,60 @@ import { Icon } from './icon';
   selector: 'app-shell',
   imports: [RouterLink, RouterLinkActive, RouterOutlet, Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: ` <div class="workspace" [class.mobile-nav]="menu()">
-    <aside class="sidebar">
-      <a class="brand" routerLink="/overview" (click)="menu.set(false)"
-        ><span class="brand-mark"><app-icon name="shield" /></span
-        ><span>AI Policy<br />Investigator</span></a
-      >
-      <nav aria-label="Main navigation">
-        @for (item of navigation; track item.route) {
-          <a [routerLink]="item.route" routerLinkActive="active" (click)="menu.set(false)"
-            ><app-icon [name]="item.icon" /><span>{{ item.title }}</span></a
-          >
-        }
-      </nav>
-      <div class="sidebar-footer">
-        <span class="agency-icon"><app-icon name="building" /></span>
-        <div><strong>Policy workspace</strong><span>Evidence · Access · Review</span></div>
-      </div>
-    </aside>
-    <div class="workspace-body">
-      <header class="topbar">
-        <button
-          type="button"
-          class="icon-button menu-toggle"
-          aria-label="Toggle navigation"
-          [attr.aria-expanded]="menu()"
-          (click)="menu.update(toggle)"
+  template: ` @if (auth.identity()) {
+    <div class="workspace" [class.mobile-nav]="menu()">
+      <aside class="sidebar">
+        <a class="brand" routerLink="/overview" (click)="menu.set(false)"
+          ><span class="brand-mark"><app-icon name="shield" /></span
+          ><span>AI Policy<br />Investigator</span></a
         >
-          <app-icon name="menu" />
-        </button>
-        <form class="workspace-search" (submit)="search($event)">
-          <app-icon name="search" /><input
-            aria-label="Search policy titles"
-            placeholder="Search policies in your workspace…"
-            [value]="query()"
-            (input)="query.set($any($event.target).value)"
-          />
-        </form>
-        <div class="account">
-          <span class="secure-label"><app-icon name="shield" /> Secure workspace</span
-          ><span class="avatar">{{ initials() }}</span>
-          <div class="account-details">
-            <strong>{{ auth.identity()?.user?.email }}</strong
-            ><span>{{ role() }}</span>
-          </div>
-          <button type="button" class="icon-button" aria-label="Sign out" (click)="auth.logout()">
-            <app-icon name="logout" />
-          </button>
+        <nav aria-label="Main navigation">
+          @for (item of navigation; track item.route) {
+            <a [routerLink]="item.route" routerLinkActive="active" (click)="menu.set(false)"
+              ><app-icon [name]="item.icon" /><span>{{ item.title }}</span></a
+            >
+          }
+        </nav>
+        <div class="sidebar-footer">
+          <span class="agency-icon"><app-icon name="building" /></span>
+          <div><strong>Policy workspace</strong><span>Evidence · Access · Review</span></div>
         </div>
-      </header>
-      <main class="workspace-content"><router-outlet /></main>
+      </aside>
+      <div class="workspace-body">
+        <header class="topbar">
+          <button
+            type="button"
+            class="icon-button menu-toggle"
+            aria-label="Toggle navigation"
+            [attr.aria-expanded]="menu()"
+            (click)="menu.update(toggle)"
+          >
+            <app-icon name="menu" />
+          </button>
+          <form class="workspace-search" (submit)="search($event)">
+            <app-icon name="search" /><input
+              aria-label="Search policy titles"
+              placeholder="Search policies in your workspace…"
+              [value]="query()"
+              (input)="query.set($any($event.target).value)"
+            />
+          </form>
+          <div class="account">
+            <span class="secure-label"><app-icon name="shield" /> Secure workspace</span
+            ><span class="avatar">{{ initials() }}</span>
+            <div class="account-details">
+              <strong>{{ auth.identity()?.user?.email }}</strong
+              ><span>{{ role() }}</span>
+            </div>
+            <button type="button" class="icon-button" aria-label="Sign out" (click)="auth.logout()">
+              <app-icon name="logout" />
+            </button>
+          </div>
+        </header>
+        <main class="workspace-content"><router-outlet /></main>
+      </div>
     </div>
-  </div>`,
+  }`,
   styleUrl: './shell.scss',
 })
 export class Shell {

@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
-export const routes: Routes = [
+import { Shell } from './shared/shell';
+import { authGuard, loginGuard } from './core/auth.guard';
+
+const protectedRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'overview' },
   {
     path: 'overview',
@@ -35,4 +38,19 @@ export const routes: Routes = [
     loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
   },
   { path: '**', redirectTo: 'overview' },
+];
+
+export const routes: Routes = [
+  {
+    path: 'login',
+    canActivate: [loginGuard],
+    loadComponent: () => import('./features/auth/login').then((m) => m.Login),
+  },
+  {
+    path: '',
+    component: Shell,
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
+    children: protectedRoutes,
+  },
 ];

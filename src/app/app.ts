@@ -1,13 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Auth } from './core/auth';
-import { Login } from './features/auth/login';
-import { Shell } from './shared/shell';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-root',
-  imports: [Login, Shell],
+  imports: [RouterOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: '@if (auth.identity()) {<app-shell/>} @else {<app-login/>}',
+  template: '<router-outlet/>',
 })
-export class App {
-  readonly auth = inject(Auth);
-}
+export class App {}

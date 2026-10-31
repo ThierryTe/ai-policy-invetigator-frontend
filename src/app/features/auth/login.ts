@@ -5,6 +5,8 @@ import { catchError, exhaustMap, map, of, startWith, Subject, tap } from 'rxjs';
 import { Auth } from '../../core/auth';
 import { message } from '../../core/errors';
 import { Icon } from '../../shared/icon';
+import { ActivatedRoute, Router } from '@angular/router';
+import { safeReturnUrl } from '../../core/auth-navigation';
 @Component({
   selector: 'app-login',
   imports: [FormsModule, Icon],
@@ -80,6 +82,8 @@ import { Icon } from '../../shared/icon';
 })
 export class Login {
   readonly auth = inject(Auth);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   readonly email = signal('');
   readonly password = signal('');
   private readonly attempts = new Subject<{ email: string; password: string }>();
@@ -87,7 +91,13 @@ export class Login {
     this.attempts.pipe(
       exhaustMap((c) =>
         this.auth.login(c.email, c.password).pipe(
-          tap(() => this.password.set('')),
+          tap(() => {
+            this.password.set('');
+            void this.router.navigateByUrl(
+              safeReturnUrl(this.router, this.route.snapshot.queryParamMap.get('returnUrl')),
+              { replaceUrl: true },
+            );
+          }),
           map(() => ({ busy: false, error: '' })),
           catchError((e) =>
             of({
