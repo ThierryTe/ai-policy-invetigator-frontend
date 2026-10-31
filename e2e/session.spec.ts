@@ -59,7 +59,7 @@ test('current roles, query clearing, cross-session isolation and real network fa
         reusedInvestigationId: result.investigationId,
         noNewInference: true,
         checks: [
-          'shared deep link after memory-only login',
+          'shared deep link after verified login',
           'prior-user query cleared on logout',
           'viewer cannot upload or review',
           'cross-department graph/citation denial',

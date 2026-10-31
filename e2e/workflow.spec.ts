@@ -232,14 +232,12 @@ test('real PDF → Meta investigation → sources → reviews → session isolat
     session: Object.keys(sessionStorage),
   }));
   expect(stored.local).toEqual([]);
-  expect(stored.session).toEqual([]);
+  expect(stored.session).toEqual(['ai-policy-investigator.session']);
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
   await expect(page.locator('.source-excerpt')).toHaveCount(0);
   await login(data.viewer);
-  await page.goto('/investigations/' + result.id); // Reload must intentionally lose the in-memory session.
-  await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible();
-  await login(data.viewer);
+  await page.goto('/investigations/' + result.id); // Reload revalidates the tab-scoped session.
   await expect(page.locator('.investigation-status .badge')).toHaveText('Completed');
   await expect(page.getByRole('button', { name: 'Confirm', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Sign out' }).click();
@@ -285,9 +283,9 @@ test('real PDF → Meta investigation → sources → reviews → session isolat
           'authenticated PDF blob viewer',
           'confirm/dismiss/note history',
           'desktop/mobile layouts',
-          'no browser token storage',
+          'tab-scoped session storage only',
           'logout content clearing',
-          'reload requires login',
+          'reload revalidates the saved session',
           'viewer review controls hidden',
           'cross-department resource denial',
         ],
