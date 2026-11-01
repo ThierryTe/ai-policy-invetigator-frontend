@@ -1,0 +1,6 @@
+{
+  "status": "blocked",
+  "videoCreated": false,
+  "blocker": "Missing production investigation URL and authorized production credentials/session.",
+  "fix": "Set DEMO_INVESTIGATION_URL and DEMO_CREDENTIALS_FILE (private JSON file), then rerun the README command."
+}

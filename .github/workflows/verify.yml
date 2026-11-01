@@ -32,28 +32,20 @@ jobs:
       - name: Build production frontend image without backend credentials
         run: docker build --tag policy-investigator-frontend:ci .
 
-  publish:
+  request-ci:
     needs: verify
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'ThierryTe/ai-policy-invetigator-frontend'
-    permissions:
-      contents: read
-      packages: write
-    uses: ThierryTe/ai-policy-invetigator/.github/workflows/publish-images.yml@main
-    with:
-      component: frontend
-
-  deploy:
-    needs: publish
-    permissions:
-      contents: read
-      packages: read
-    uses: ThierryTe/ai-policy-invetigator/.github/workflows/deploy-production.yml@main
-    with:
-      component: frontend
-      source_sha: ${{ github.sha }}
-    secrets:
-      VPS_HOST: ${{ secrets.VPS_HOST }}
-      VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
-      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-      VPS_PORT: ${{ secrets.VPS_PORT }}
-      VPS_DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - name: Trigger coordinated CI in the backend repository
+        env:
+          # Existing dispatch credential: backend Contents write only, never GHCR.
+          GH_TOKEN: ${{ secrets.BACKEND_CI_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo '::error::Configure BACKEND_CI_TOKEN with Contents write access to ThierryTe/ai-policy-invetigator for repository_dispatch.'
+            exit 1
+          fi
+          gh api --method POST repos/ThierryTe/ai-policy-invetigator/dispatches -f event_type=frontend-main
